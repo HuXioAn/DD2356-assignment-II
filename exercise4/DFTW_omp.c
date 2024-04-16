@@ -34,6 +34,7 @@ int main(int argc, char *argv[]) {
   // size of input array
   int N = 10000; // 8,000 is a good number for testing
   printf("DFTW calculation with N = %d \n", N);
+  printf("With %d Thread\n", omp_get_num_threads());
 
   // Allocate array for input vector
   double *xr = (double *)malloc(N * sizeof(double));
