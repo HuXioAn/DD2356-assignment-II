@@ -20,6 +20,7 @@
 
 // main routine to calculate DFT
 int DFT(int idft, double *xr, double *xi, double *Xr_o, double *Xi_o, int N);
+int iDFT(int idft, double *xr, double *xi, double *Xr_o, double *Xi_o, int N)
 // set the input array with random number
 int fillInput(double *xr, double *xi, int N);
 // set to zero the input vector
@@ -58,7 +59,7 @@ int main(int argc, char *argv[]) {
   DFT(idft, xr, xi, Xr_o, Xi_o, N);
   // IDFT
   idft = -1;
-  DFT(idft, Xr_o, Xi_o, xr_check, xi_check, N);
+  iDFT(idft, Xr_o, Xi_o, xr_check, xi_check, N);
 
   // stop timer
   double run_time = omp_get_wtime() - start_time;
@@ -97,14 +98,27 @@ int DFT(int idft, double *xr, double *xi, double *Xr_o, double *Xi_o, int N) {
     }
   }
 
-  // normalize if you are doing IDFT
-  if (idft == -1) {
-    #pragma omp parallel for
+  return 1;
+}
+
+int iDFT(int idft, double *xr, double *xi, double *Xr_o, double *Xi_o, int N) {
+  #pragma omp parallel for
+  for (int k = 0; k < N; k++) {
     for (int n = 0; n < N; n++) {
-      Xr_o[n] /= N;
-      Xi_o[n] /= N;
+      // Real part of X[k]
+      Xr_o[k] +=
+          xr[n] * cos(n * k * PI2 / N) + idft * xi[n] * sin(n * k * PI2 / N);
+      // Imaginary part of X[k]
+      Xi_o[k] +=
+          -idft * xr[n] * sin(n * k * PI2 / N) + xi[n] * cos(n * k * PI2 / N);
     }
+
+    Xr_o[k] /= N;
+    Xi_o[k] /= N;
+
   }
+
+
   return 1;
 }
 
