@@ -87,15 +87,20 @@ int main(int argc, char *argv[]) {
 int DFT(int idft, double *xr, double *xi, double *Xr_o, double *Xi_o, int N) {
   
   for (int k = 0; k < N; k++) {
-    #pragma omp parallel for
+    double XrTemp = 0.0;
+    double XiTemp = 0.0;
+    #pragma omp parallel for reduction(+:XrTemp, XiTemp)
     for (int n = 0; n < N; n++) {
       // Real part of X[k]
-      Xr_o[k] +=
+      XrTemp +=
           xr[n] * cos(n * k * PI2 / N) + idft * xi[n] * sin(n * k * PI2 / N);
       // Imaginary part of X[k]
-      Xi_o[k] +=
+      XiTemp +=
           -idft * xr[n] * sin(n * k * PI2 / N) + xi[n] * cos(n * k * PI2 / N);
     }
+
+    Xr_o[k] = XrTemp;
+    Xi_o[k] = XiTemp;
   }
 
   // normalize if you are doing IDFT
