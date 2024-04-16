@@ -85,12 +85,14 @@ int main(int argc, char *argv[]) {
 // DFT/IDFT routine
 // idft: 1 direct DFT, -1 inverse IDFT (Inverse DFT)
 int DFT(int idft, double *xr, double *xi, double *Xr_o, double *Xi_o, int N) {
-  #pragma omp parallel for
+  #pragma omp parallel
   {
     #pragma omp master
     {
       printf("With %d thread \n", omp_get_num_threads());
     }
+    
+    #pragma omp for
     for (int k = 0; k < N; k++) {
       double XrTemp = 0.0;
       double XiTemp = 0.0;
