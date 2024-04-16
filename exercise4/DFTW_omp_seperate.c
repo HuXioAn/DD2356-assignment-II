@@ -20,7 +20,7 @@
 
 // main routine to calculate DFT
 int DFT(int idft, double *xr, double *xi, double *Xr_o, double *Xi_o, int N);
-int iDFT(int idft, double *xr, double *xi, double *Xr_o, double *Xi_o, int N)
+int iDFT(int idft, double *xr, double *xi, double *Xr_o, double *Xi_o, int N);
 // set the input array with random number
 int fillInput(double *xr, double *xi, int N);
 // set to zero the input vector
