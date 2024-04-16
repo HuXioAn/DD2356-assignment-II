@@ -90,12 +90,14 @@ int DFT(int idft, double *xr, double *xi, double *Xr_o, double *Xi_o, int N) {
     double XrTemp = 0.0;
     double XiTemp = 0.0;
     for (int n = 0; n < N; n++) {
+      double c = cos(n * k * PI2 / N);
+      double s = sin(n * k * PI2 / N);
       // Real part of X[k]
       XrTemp +=
-          xr[n] * cos(n * k * PI2 / N) + idft * xi[n] * sin(n * k * PI2 / N);
+          xr[n] * c + idft * xi[n] * s;
       // Imaginary part of X[k]
       XiTemp +=
-          -idft * xr[n] * sin(n * k * PI2 / N) + xi[n] * cos(n * k * PI2 / N);
+          -idft * xr[n] * s + xi[n] * c;
     }
 
     Xr_o[k] = XrTemp;
