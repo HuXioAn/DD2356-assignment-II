@@ -34,7 +34,6 @@ int main(int argc, char *argv[]) {
   // size of input array
   int N = 10000; // 8,000 is a good number for testing
   printf("DFTW calculation with N = %d \n", N);
-  printf("With %d Thread\n", omp_get_num_threads());
 
   // Allocate array for input vector
   double *xr = (double *)malloc(N * sizeof(double));
@@ -87,23 +86,30 @@ int main(int argc, char *argv[]) {
 // idft: 1 direct DFT, -1 inverse IDFT (Inverse DFT)
 int DFT(int idft, double *xr, double *xi, double *Xr_o, double *Xi_o, int N) {
   #pragma omp parallel for
-  for (int k = 0; k < N; k++) {
-    double XrTemp = 0.0;
-    double XiTemp = 0.0;
-    for (int n = 0; n < N; n++) {
-      double c = cos(n * k * PI2 / N);
-      double s = sin(n * k * PI2 / N);
-      // Real part of X[k]
-      XrTemp +=
-          xr[n] * c + idft * xi[n] * s;
-      // Imaginary part of X[k]
-      XiTemp +=
-          -idft * xr[n] * s + xi[n] * c;
+  {
+    #pragma omp master
+    {
+      printf("With %d thread \n", omp_get_num_threads());
     }
+    for (int k = 0; k < N; k++) {
+      double XrTemp = 0.0;
+      double XiTemp = 0.0;
+      for (int n = 0; n < N; n++) {
+        double c = cos(n * k * PI2 / N);
+        double s = sin(n * k * PI2 / N);
+        // Real part of X[k]
+        XrTemp +=
+            xr[n] * c + idft * xi[n] * s;
+        // Imaginary part of X[k]
+        XiTemp +=
+            -idft * xr[n] * s + xi[n] * c;
+      }
 
-    Xr_o[k] = XrTemp;
-    Xi_o[k] = XiTemp;
+      Xr_o[k] = XrTemp;
+      Xi_o[k] = XiTemp;
+    }
   }
+  
 
   // normalize if you are doing IDFT
   if (idft == -1) {
